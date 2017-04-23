@@ -1,12 +1,15 @@
 package at.robhor.annotationprocessingexample;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
+    @BindView(R.id.title)
     private TextView titleView;
+
+    @BindView(R.id.text)
     private TextView textView;
 
     @Override
