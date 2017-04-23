@@ -7,20 +7,19 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.title)
-    private TextView titleView;
+    TextView titleView;
 
     @BindView(R.id.text)
-    private TextView textView;
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        titleView = (TextView) findViewById(R.id.title);
-        textView = (TextView) findViewById(R.id.text);
+        ViewBinder.bind(this);
 
         titleView.setText("Annotation Processing Example");
-        textView.setText("The old way - calling findViewById manually");
+        textView.setText("TextView bound using generated binder class");
     }
 }
