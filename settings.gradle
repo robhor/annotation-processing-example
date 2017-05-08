@@ -1,1 +1,1 @@
-include ':app', ':annotation-api', ':annotation-compiler'
+include ':app', ':bindview-api', ':bindview-processor'
