@@ -1,4 +1,4 @@
-package at.robhor.annotationprocessingexample;
+package at.robhor.annotationprocessingexample.model;
 
 import javax.lang.model.type.TypeMirror;
 

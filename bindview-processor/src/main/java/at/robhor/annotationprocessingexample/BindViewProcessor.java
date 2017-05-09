@@ -24,6 +24,11 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
+import at.robhor.annotationprocessingexample.model.BindingSet;
+import at.robhor.annotationprocessingexample.model.ClassBinding;
+import at.robhor.annotationprocessingexample.model.PackageBinding;
+import at.robhor.annotationprocessingexample.model.ViewBinding;
+
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -101,9 +106,10 @@ public class BindViewProcessor extends AbstractProcessor {
     private Set<JavaFile> generateBinderClasses(BindingSet bindingSet) {
         Set<JavaFile> files = new HashSet<>();
 
-        for (PackageElement packageElement : bindingSet.getPackages()) {
-            TypeSpec binderClass = generateBinderClass(bindingSet, packageElement);
-            String packageName = packageElement.getQualifiedName().toString();
+        for (PackageBinding packageBinding : bindingSet.getPackageBindings()) {
+            String packageName = packageBinding.getPackageName();
+            TypeSpec binderClass = generateBinderClass(packageBinding);
+
             JavaFile javaFile = JavaFile.builder(packageName, binderClass).build();
             files.add(javaFile);
         }
@@ -111,27 +117,29 @@ public class BindViewProcessor extends AbstractProcessor {
         return files;
     }
 
-    private TypeSpec generateBinderClass(BindingSet bindingSet, PackageElement packageElement) {
+    private TypeSpec generateBinderClass(PackageBinding packageBinding) {
+        MethodSpec constructor = MethodSpec.constructorBuilder()
+                .addModifiers(PRIVATE)
+                .build();
+
         TypeSpec.Builder classBuilder = TypeSpec.classBuilder("ViewBinder")
                 .addModifiers(FINAL)
-                .addMethod(MethodSpec.constructorBuilder().addModifiers(PRIVATE).build());
+                .addMethod(constructor);
 
-        Set<TypeElement> classes = bindingSet.getClasses(packageElement);
-        for (TypeElement classElement : classes) {
-            Set<ViewBinding> bindings = bindingSet.getBindings(packageElement, classElement);
-            MethodSpec method = generateBindMethod(classElement, bindings);
+        for (ClassBinding classBinding : packageBinding.getClassBindings()) {
+            MethodSpec method = generateBindMethod(classBinding);
             classBuilder.addMethod(method);
         }
 
         return classBuilder.build();
     }
 
-    private MethodSpec generateBindMethod(TypeElement classElement, Set<ViewBinding> elementBindings) {
+    private MethodSpec generateBindMethod(ClassBinding classBinding) {
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("bind")
                 .addModifiers(PUBLIC, STATIC)
-                .addParameter(ClassName.get(classElement), "target");
+                .addParameter(ClassName.get(classBinding.getClassElement()), "target");
 
-        for (ViewBinding elementBinding : elementBindings) {
+        for (ViewBinding elementBinding : classBinding.getViewBindings()) {
             methodBuilder.addStatement("target.$N = ($T) target.findViewById($L)",
                     elementBinding.getName(),
                     ClassName.get(elementBinding.getType()),
