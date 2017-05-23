@@ -126,10 +126,10 @@ public class BindViewProcessor extends AbstractProcessor {
                 .addModifiers(FINAL)
                 .addMethod(constructor);
 
-        for (ClassBinding classBinding : packageBinding.getClassBindings()) {
-            MethodSpec method = generateBindMethod(classBinding);
-            classBuilder.addMethod(method);
-        }
+        packageBinding.getClassBindings()
+                .stream()
+                .map(this::generateBindMethod)
+                .forEach(classBuilder::addMethod);
 
         return classBuilder.build();
     }
